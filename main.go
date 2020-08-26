@@ -19,6 +19,7 @@ const (
 
 type repositoryinterface interface {
 	Create(*pb.Consignment) (*pb.Consignment, error)
+	GetAll() []*pb.Consignment
 }
 type Repository struct {
 	mu           sync.RWMutex
@@ -34,6 +35,10 @@ func (repo *Repository) Create(consignment *pb.Consignment) (*pb.Consignment, er
 	return consignment, nil
 }
 
+func (repo *Repository) GetAll() []*pb.Consignment {
+	return repo.consignments
+}
+
 type service struct {
 	repo repositoryinterface
 }
@@ -44,6 +49,11 @@ func (s *service) CreateConsignment(ctx context.Context, request *pb.Consignment
 		return nil, err
 	}
 	return &pb.Response{Created: true, Consignment: consignment}, nil
+}
+
+func (s *service) GetConsignments(ctx context.Context, request *pb.GetRequest) (*pb.Response, error) {
+	consignments := s.repo.GetAll()
+	return &pb.Response{Consignments: consignments}, nil
 }
 
 func main() {
