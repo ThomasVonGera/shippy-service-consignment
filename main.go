@@ -3,17 +3,12 @@ package main
 import (
 	"context"
 	"log"
-	"net"
 
 	pb "github.com/ThomasVonGera/shippy-service-consignment/proto/consignment"
-
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
+	"github.com/micro/go-micro/v2"
 )
 
-const (
-	port = ":50051"
-)
+const serviceName = "shippy-.service.Consignment"
 
 type repositoryinterface interface {
 	Create(*pb.Consignment) (*pb.Consignment, error)
@@ -34,11 +29,11 @@ func (repo *Repository) GetAll() []*pb.Consignment {
 	return repo.consignments
 }
 
-type service struct {
+type consignmentService struct {
 	repo repositoryinterface
 }
 
-func (s *service) CreateConsignment(ctx context.Context, request *pb.Consignment, res *pb.Response) error {
+func (s *consignmentService) CreateConsignment(ctx context.Context, request *pb.Consignment, res *pb.Response) error {
 	consignment, err := s.repo.Create(request)
 	if err != nil {
 		return err
@@ -48,28 +43,29 @@ func (s *service) CreateConsignment(ctx context.Context, request *pb.Consignment
 	return nil
 }
 
-func (s *service) GetConsignments(ctx context.Context, request *pb.GetRequest) (*pb.Response, error) {
+func (s *consignmentService) GetConsignments(ctx context.Context, request *pb.GetRequest, res *pb.Response) error {
 	consignments := s.repo.GetAll()
-	return &pb.Response{Consignments: consignments}, nil
+	res.Consignments = consignments
+	return nil
 }
 
 func main() {
 	repo := &Repository{}
 
-	lis, err := net.Listen("tcp", port)
-	if err != nil {
-		log.Fatalf("Fehler beim Listen: %v", err)
+	service := micro.NewService(
+		micro.Name(serviceName),
+	)
+
+	// initialisieren
+	service.Init()
+
+	//registrieren
+	if err := pb.RegisterShippingServiceHandler(service.Server(), &consignmentService{repo}); err != nil {
+		log.Panic(err)
 	}
 
-	server := grpc.NewServer()
-
-	pb.RegisterShippingServiceServer(server, &service{repo})
-
-	reflection.Register(server)
-
-	log.Println("Running on Port: ", port)
-
-	if err := server.Serve(lis); err != nil {
-		log.Fatalf("Fehler beim Serven: %v", err)
+	//server ausführen
+	if err := service.Run(); err != nil {
+		log.Panic(err)
 	}
 }
