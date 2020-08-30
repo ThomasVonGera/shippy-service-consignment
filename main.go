@@ -12,14 +12,13 @@ import (
 )
 
 const (
-	serviceName = "shippy-.service.Consignment"
-	defaultHost = "datastore:27017"
+	serviceName = "shippy.service.consignment"
 )
 
 func main() {
 	// Set-up micro instance
 	service := micro.NewService(
-		micro.Name("shippy.service.consignment"),
+		micro.Name(serviceName),
 	)
 
 	service.Init()
