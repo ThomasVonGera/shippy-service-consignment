@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 
-	pb "github.com/<YourUserName>/shippy/shippy-service-consignment/proto/consignment"
-	vesselProto "github.com/<YourUsername>/shippy/shippy-service-vessel/proto/vessel"
+	pb "github.com/ThomasVonGera/shippy-service-consignment/proto/consignment"
+	vesselProto "github.com/ThomasVonGera/shippy-service-vessel/proto/vessel"
 	"github.com/pkg/errors"
 )
 

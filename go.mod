@@ -3,6 +3,7 @@ module github.com/ThomasVonGera/shippy-service-consignment
 go 1.15
 
 require (
+	github.com/ThomasVonGera/shippy-service-vessel v0.0.0-20200830143317-8564bca0d2dd
 	github.com/golang/protobuf v1.4.2
 	github.com/google/go-cmp v0.5.0 // indirect
 	github.com/micro/go-micro/v2 v2.9.1
@@ -13,6 +14,6 @@ require (
 	golang.org/x/net v0.0.0-20200822124328-c89045814202 // indirect
 	golang.org/x/sys v0.0.0-20200824131525-c12d262b63d8 // indirect
 	golang.org/x/text v0.3.3 // indirect
-	google.golang.org/protobuf v1.23.0
+	google.golang.org/protobuf v1.25.0
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 )
