@@ -3,9 +3,10 @@ module github.com/ThomasVonGera/shippy-service-consignment
 go 1.15
 
 replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
+
 //replace github.com/ThomasVonGera/shippy-service-vessel => ../shippy-service-vessel
 require (
-	github.com/ThomasVonGera/shippy-service-vessel v0.0.0-20200830143317-8564bca0d2dd
+	github.com/ThomasVonGera/shippy-service-vessel v0.0.0-20200830151048-3392e7cd1a4f
 	github.com/golang/protobuf v1.4.2
 	github.com/micro/go-micro/v2 v2.9.1
 	github.com/pkg/errors v0.9.1
