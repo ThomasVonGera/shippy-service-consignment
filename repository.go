@@ -31,7 +31,7 @@ func MarshalContainerCollection(containers []*pb.Container) []*Container {
 	return collection
 }
 
-func UnMarshalContainerCollection(containers []*Container) []*pb.Container {
+func UnmarshalContainerCollection(containers []*Container) []*pb.Container {
 	collection := make([]*pb.Container, 0)
 	for _, container := range containers {
 		collection = append(collection, UnmarshalContainer(container))
@@ -39,12 +39,12 @@ func UnMarshalContainerCollection(containers []*Container) []*pb.Container {
 	return collection
 }
 
-func MarshalContainer(container *pb.Container) *Container {
-	return &Container{
-		ID:         container.Id,
-		CustomerID: container.CustomerId,
-		UserID:     container.UserId,
+func UnmarshalConsignmentCollection(consignments []*Consignment) []*pb.Consignment {
+	collection := make([]*pb.Consignment, 0)
+	for _, consignment := range consignments {
+		collection = append(collection, UnmarshalConsignment(consignment))
 	}
+	return collection
 }
 
 func UnmarshalContainer(container *Container) *pb.Container {
@@ -55,6 +55,15 @@ func UnmarshalContainer(container *Container) *pb.Container {
 	}
 }
 
+func MarshalContainer(container *pb.Container) *Container {
+	return &Container{
+		ID:         container.Id,
+		CustomerID: container.CustomerId,
+		UserID:     container.UserId,
+	}
+}
+
+// Marshal an input consignment type to a consignment model
 func MarshalConsignment(consignment *pb.Consignment) *Consignment {
 	containers := MarshalContainerCollection(consignment.Containers)
 	return &Consignment{
@@ -71,8 +80,8 @@ func UnmarshalConsignment(consignment *Consignment) *pb.Consignment {
 		Id:          consignment.ID,
 		Weight:      consignment.Weight,
 		Description: consignment.Description,
-		Containers:  UnMarshalContainerCollection(consignment.Containers),
-		VesselId:    consignment.ID,
+		Containers:  UnmarshalContainerCollection(consignment.Containers),
+		VesselId:    consignment.VesselID,
 	}
 }
 
@@ -81,15 +90,18 @@ type repository interface {
 	GetAll(ctx context.Context) ([]*Consignment, error)
 }
 
+// MongoRepository implementation
 type MongoRepository struct {
 	collection *mongo.Collection
 }
 
+// Create -
 func (repository *MongoRepository) Create(ctx context.Context, consignment *Consignment) error {
 	_, err := repository.collection.InsertOne(ctx, consignment)
 	return err
 }
 
+// GetAll -
 func (repository *MongoRepository) GetAll(ctx context.Context) ([]*Consignment, error) {
 	cur, err := repository.collection.Find(ctx, nil, nil)
 	var consignments []*Consignment

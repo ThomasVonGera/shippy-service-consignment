@@ -2,46 +2,46 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"os"
 
-	pb 			"github.com/ThomasVonGera/shippy-service-consignment/proto/consignment"
+	pb "github.com/ThomasVonGera/shippy-service-consignment/proto/consignment"
 	vesselProto "github.com/ThomasVonGera/shippy-service-vessel/proto/vessel"
 	"github.com/micro/go-micro/v2"
 )
 
 const (
-		serviceName = "shippy-.service.Consignment"
-		defaultHost = "datastore:27017"
+	serviceName = "shippy-.service.Consignment"
+	defaultHost = "datastore:27017"
 )
 
-
 func main() {
+	// Set-up micro instance
 	service := micro.NewService(
-		micro.Name(serviceName)
+		micro.Name("shippy.service.consignment"),
 	)
 
 	service.Init()
 
 	uri := os.Getenv("DB_HOST")
-	if uri == "" {
-		uri = defaultHost
-	}
 
-	client,err := CreateClient(context.Background(), uri, 0)
+	client, err := CreateClient(context.Background(), uri, 0)
 	if err != nil {
 		log.Panic(err)
 	}
-
 	defer client.Disconnect(context.Background())
 
 	consignmentCollection := client.Database("shippy").Collection("consignments")
 
+	repository := &MongoRepository{consignmentCollection}
 	vesselClient := vesselProto.NewVesselService("shippy.service.client", service.Client())
+	h := &handler{repository, vesselClient}
 
-	hilfsHandler := &handler{repository, vesselClient}
+	// Register handlers
+	pb.RegisterShippingServiceHandler(service.Server(), h)
 
-	pb.RegisterShippingServiceHandler(service.Server(), hilfsHandler)
-
+	// Run the server
 	if err := service.Run(); err != nil {
 		fmt.Println(err)
 	}
